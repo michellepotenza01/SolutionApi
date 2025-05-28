@@ -1,0 +1,25 @@
+﻿# Diretórios do Visual Studio
+.vs/
+.vscode/
+
+# Pastas de build
+bin/
+obj/
+
+# Arquivos temporários do sistema
+desktop.ini
+
+# Arquivos do Docker
+.dockerignore
+
+# Arquivos de configuração do Visual Studio
+.suo
+.user
+*.dbmdl
+
+# Arquivos de log
+*.log
+
+# Outros arquivos temporários
+*.bak
+*.swp
