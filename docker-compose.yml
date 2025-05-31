@@ -1,0 +1,34 @@
+﻿version: '3.8'
+
+services:
+  prevention-api:
+    build: .
+    ports:
+      - "8080:8080"
+      - "443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__OracleConnection=User Id=RM557702;Password=040106;Data Source=oracle.fiap.com.br:1521/orcl;
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: oracle/database:19.3.0-ee
+    environment:
+      - ORACLE_PASSWORD=oracle
+      - ORACLE_SID=orcl
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    networks:
+      - app-network
+
+volumes:
+  oracle_data:
+
+networks:
+  app-network:
+    driver: bridge 
