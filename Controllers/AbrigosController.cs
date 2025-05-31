@@ -31,10 +31,10 @@ namespace SolutionApi.Controllers
 
             if (abrigos == null || !abrigos.Any())
             {
-                return NoContent();
+                return NoContent();  // Caso não haja abrigos, retorna NoContent
             }
 
-            return Ok(abrigos);
+            return Ok(abrigos);  // Retorna todos os abrigos
         }
 
         // GET: api/abrigos/{nomeAbrigo}
@@ -66,7 +66,7 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
             var abrigo = new Abrigo
@@ -93,7 +93,7 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
             var abrigo = await _context.Abrigos

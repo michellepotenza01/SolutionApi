@@ -26,10 +26,7 @@ namespace SolutionApi.Models
         [Display(Name = "Nome do Abrigo", Description = "Nome do abrigo ao qual o voluntário está associado.")]
         public string NomeAbrigo { get; set; }
 
-        
-        public Pessoa Pessoa { get; set; }
-
-        
-        public Abrigo Abrigo { get; set; } 
+        public Pessoa Pessoa { get; set; } // Associação com Pessoa (Relacional)
+        public Abrigo Abrigo { get; set; } // Associação com Abrigo (Relacional)
     }
 }

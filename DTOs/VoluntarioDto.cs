@@ -5,6 +5,7 @@ namespace SolutionApi.DTOs
 {
     public class VoluntarioDto
     {
+        [Key]
         [Required(ErrorMessage = "O RG do voluntário é obrigatório.")]
         [Display(Name = "RG", Description = "RG único do voluntário.")]
         public string RG { get; set; }

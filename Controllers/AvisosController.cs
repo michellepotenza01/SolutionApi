@@ -67,7 +67,7 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
             var aviso = new Aviso
@@ -95,7 +95,7 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
             var aviso = await _context.Avisos

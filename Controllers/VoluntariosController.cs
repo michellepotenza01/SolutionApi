@@ -24,17 +24,18 @@ namespace SolutionApi.Controllers
         [EndpointSummary("Listar todos os voluntários")]
         [EndpointDescription("Este endpoint retorna todos os voluntários cadastrados.")]
         [ProducesResponseType(typeof(IEnumerable<VoluntarioDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetVoluntarios()
         {
             var voluntarios = await _context.Voluntarios.Include(v => v.Pessoa).Include(v => v.Abrigo).ToListAsync();
             if (voluntarios == null || !voluntarios.Any())
             {
-                return NotFound(new { Message = "Nenhum voluntário encontrado." });
+                return NoContent();  // Retorna NoContent se não houver voluntários
             }
             return Ok(voluntarios);
         }
 
-        // GET: api/Voluntarios/5
+        // GET: api/Voluntarios/{cpf}
         [HttpGet("{cpf}")]
         [EndpointSummary("Buscar voluntário por CPF")]
         [EndpointDescription("Este endpoint busca um voluntário através do CPF.")]
@@ -46,7 +47,7 @@ namespace SolutionApi.Controllers
 
             if (voluntario == null)
             {
-                return NotFound(new { Message = "Voluntário não encontrado." });
+                return NotFound(new { message = "Voluntário não encontrado." });
             }
 
             return Ok(voluntario);
@@ -62,21 +63,27 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
+            // Verificar se a pessoa associada ao voluntário já existe
             var pessoa = await _context.Pessoas.FindAsync(voluntarioDto.CPF);
             if (pessoa == null)
             {
-                return BadRequest(new { Message = "CPF não encontrado para associar ao voluntário." });
+                return BadRequest(new { message = "CPF não encontrado para associar ao voluntário." });
             }
 
+            // Criar o novo voluntário
             var voluntario = new Voluntario
             {
+                RG = voluntarioDto.RG,
                 CPF = voluntarioDto.CPF,
                 Funcao = voluntarioDto.Funcao,
                 NomeAbrigo = voluntarioDto.NomeAbrigo
             };
+
+            // Associando a pessoa ao voluntário
+            voluntario.Pessoa = pessoa;
 
             _context.Voluntarios.Add(voluntario);
             await _context.SaveChangesAsync();
@@ -84,7 +91,7 @@ namespace SolutionApi.Controllers
             return CreatedAtAction(nameof(GetVoluntario), new { cpf = voluntario.CPF }, voluntario);
         }
 
-        // PUT: api/Voluntarios/5
+        // PUT: api/Voluntarios/{cpf}
         [HttpPut("{cpf}")]
         [EndpointSummary("Atualizar dados de um voluntário")]
         [EndpointDescription("Este endpoint permite atualizar os dados de um voluntário.")]
@@ -95,9 +102,10 @@ namespace SolutionApi.Controllers
             var voluntario = await _context.Voluntarios.FindAsync(cpf);
             if (voluntario == null)
             {
-                return NotFound(new { Message = "Voluntário não encontrado." });
+                return NotFound(new { message = "Voluntário não encontrado." });
             }
 
+            voluntario.RG = voluntarioDto.RG;
             voluntario.Funcao = voluntarioDto.Funcao;
             voluntario.NomeAbrigo = voluntarioDto.NomeAbrigo;
 
@@ -107,7 +115,7 @@ namespace SolutionApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Voluntarios/5
+        // DELETE: api/Voluntarios/{cpf}
         [HttpDelete("{cpf}")]
         [EndpointSummary("Deletar um voluntário")]
         [EndpointDescription("Este endpoint exclui um voluntário do sistema.")]
@@ -118,7 +126,7 @@ namespace SolutionApi.Controllers
             var voluntario = await _context.Voluntarios.FindAsync(cpf);
             if (voluntario == null)
             {
-                return NotFound(new { Message = "Voluntário não encontrado." });
+                return NotFound(new { message = "Voluntário não encontrado." });
             }
 
             _context.Voluntarios.Remove(voluntario);

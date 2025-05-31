@@ -24,17 +24,18 @@ namespace SolutionApi.Controllers
         [EndpointSummary("Listar todas as pessoas")]
         [EndpointDescription("Este endpoint retorna todas as pessoas cadastradas.")]
         [ProducesResponseType(typeof(IEnumerable<PessoaDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetPessoas()
         {
             var pessoas = await _context.Pessoas.ToListAsync();
             if (pessoas == null || !pessoas.Any())
             {
-                return NotFound(new { Message = "Nenhuma pessoa encontrada." });
+                return NoContent();  // Retorna NoContent se não houver pessoas
             }
             return Ok(pessoas);
         }
 
-        // GET: api/Pessoas/5
+        // GET: api/Pessoas/{cpf}
         [HttpGet("{cpf}")]
         [EndpointSummary("Buscar pessoa por CPF")]
         [EndpointDescription("Este endpoint busca uma pessoa através do CPF.")]
@@ -46,7 +47,7 @@ namespace SolutionApi.Controllers
 
             if (pessoa == null)
             {
-                return NotFound(new { Message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada." });
             }
 
             return Ok(pessoa);
@@ -62,7 +63,7 @@ namespace SolutionApi.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
             var pessoa = new Pessoa
@@ -82,7 +83,7 @@ namespace SolutionApi.Controllers
             return CreatedAtAction(nameof(GetPessoa), new { cpf = pessoa.CPF }, pessoa);
         }
 
-        // PUT: api/Pessoas/5
+        // PUT: api/Pessoas/{cpf}
         [HttpPut("{cpf}")]
         [EndpointSummary("Atualizar dados de uma pessoa")]
         [EndpointDescription("Este endpoint permite atualizar os dados de uma pessoa.")]
@@ -93,7 +94,7 @@ namespace SolutionApi.Controllers
             var pessoa = await _context.Pessoas.FindAsync(cpf);
             if (pessoa == null)
             {
-                return NotFound(new { Message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada." });
             }
 
             pessoa.Nome = pessoaDto.Nome;
@@ -109,7 +110,7 @@ namespace SolutionApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Pessoas/5
+        // DELETE: api/Pessoas/{cpf}
         [HttpDelete("{cpf}")]
         [EndpointSummary("Deletar uma pessoa")]
         [EndpointDescription("Este endpoint exclui uma pessoa do sistema.")]
@@ -120,7 +121,7 @@ namespace SolutionApi.Controllers
             var pessoa = await _context.Pessoas.FindAsync(cpf);
             if (pessoa == null)
             {
-                return NotFound(new { Message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada." });
             }
 
             _context.Pessoas.Remove(pessoa);
