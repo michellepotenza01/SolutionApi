@@ -3,13 +3,14 @@ using SolutionApi.DTOs;
 using SolutionApi.Models;
 using SolutionApi.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SolutionApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Tags("Pessoas")]
+    [Tags("Voluntários")]
+    //[ApiExplorerSettings(GroupName = "Pessoas")] // Agrupando os endpoints de "Pessoas"
     public class PessoaController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -21,8 +22,7 @@ namespace SolutionApi.Controllers
 
         // GET: api/Pessoas
         [HttpGet]
-        [EndpointSummary("Listar todas as pessoas")]
-        [EndpointDescription("Este endpoint retorna todas as pessoas cadastradas.")]
+        [SwaggerOperation(Summary = "Listar todas as pessoas", Description = "Este endpoint retorna todas as pessoas cadastradas.")]
         [ProducesResponseType(typeof(IEnumerable<PessoaDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetPessoas()
@@ -30,15 +30,14 @@ namespace SolutionApi.Controllers
             var pessoas = await _context.Pessoas.ToListAsync();
             if (pessoas == null || !pessoas.Any())
             {
-                return NoContent();  // Retorna NoContent se não houver pessoas
+                return NoContent();
             }
             return Ok(pessoas);
         }
 
         // GET: api/Pessoas/{cpf}
         [HttpGet("{cpf}")]
-        [EndpointSummary("Buscar pessoa por CPF")]
-        [EndpointDescription("Este endpoint busca uma pessoa através do CPF.")]
+        [SwaggerOperation(Summary = "Buscar pessoa por CPF", Description = "Este endpoint busca uma pessoa através do CPF.")]
         [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPessoa(string cpf)
@@ -55,8 +54,7 @@ namespace SolutionApi.Controllers
 
         // POST: api/Pessoas
         [HttpPost]
-        [EndpointSummary("Cadastrar nova pessoa")]
-        [EndpointDescription("Este endpoint cria uma nova pessoa.")]
+        [SwaggerOperation(Summary = "Cadastrar nova pessoa", Description = "Este endpoint cria uma nova pessoa.")]
         [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostPessoa([FromBody] PessoaDto pessoaDto)
@@ -85,8 +83,7 @@ namespace SolutionApi.Controllers
 
         // PUT: api/Pessoas/{cpf}
         [HttpPut("{cpf}")]
-        [EndpointSummary("Atualizar dados de uma pessoa")]
-        [EndpointDescription("Este endpoint permite atualizar os dados de uma pessoa.")]
+        [SwaggerOperation(Summary = "Atualizar dados de uma pessoa", Description = "Este endpoint permite atualizar os dados de uma pessoa.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutPessoa(string cpf, [FromBody] PessoaDto pessoaDto)
@@ -112,8 +109,7 @@ namespace SolutionApi.Controllers
 
         // DELETE: api/Pessoas/{cpf}
         [HttpDelete("{cpf}")]
-        [EndpointSummary("Deletar uma pessoa")]
-        [EndpointDescription("Este endpoint exclui uma pessoa do sistema.")]
+        [SwaggerOperation(Summary = "Deletar uma pessoa", Description = "Este endpoint exclui uma pessoa do sistema com base no CPF.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePessoa(string cpf)

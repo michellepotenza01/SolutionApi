@@ -1,5 +1,5 @@
-﻿using SolutionApi.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using SolutionApi.Enums;
 
 namespace SolutionApi.DTOs
 {

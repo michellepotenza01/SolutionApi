@@ -18,28 +18,29 @@ namespace SolutionApi.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            // Relacionamento 1:1 entre Pessoa e Voluntario
+            // Relacionamento 1:1 entre Pessoa e Voluntário
             modelBuilder.Entity<Voluntario>()
-                .HasOne(v => v.Pessoa) // Voluntário tem uma Pessoa
-                .WithOne() // Pessoa tem um único Voluntário
-                .HasForeignKey<Voluntario>(v => v.CPF) // O CPF será a chave estrangeira
-                .OnDelete(DeleteBehavior.Cascade); // Quando a pessoa for deletada, o voluntário também será deletado
+                .HasOne(v => v.Pessoa)
+                .WithMany()
+                .HasForeignKey(v => v.CPF)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Relacionamento entre Voluntário e Abrigo (1:N)
             modelBuilder.Entity<Voluntario>()
-                .HasOne(v => v.Abrigo) // Voluntário tem um Abrigo
-                .WithMany(a => a.Voluntarios) // Abrigo tem muitos voluntários
-                .HasForeignKey(v => v.NomeAbrigo) // Relacionamento pelo nome do abrigo
-                .OnDelete(DeleteBehavior.Cascade); // Deletar voluntários quando o abrigo for deletado
+                .HasOne(v => v.Abrigo)
+                .WithMany(a => a.Voluntarios)
+                .HasForeignKey(v => v.NomeAbrigo)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Relacionamento entre Aviso e Bairro (1:N)
+            // Relacionamento entre Aviso e Bairro (1:N) com Bairro sendo uma string
             modelBuilder.Entity<Aviso>()
-                .HasOne(a => a.Bairro) // Aviso tem um Bairro
-                .WithMany() // Bairro pode ter muitos avisos
-                .HasForeignKey(a => a.Bairro) // Relacionamento pelo bairro
-                .OnDelete(DeleteBehavior.Restrict); // Evitar deleção em cascata de bairros
+                .Property(a => a.Bairro)
+                .HasMaxLength(100); // Garantir que o campo Bairro tenha um tamanho adequado
+
+            // Não há necessidade de um relacionamento físico no banco para "Bairro"
+            // Apenas garantimos que a propriedade Bairro seja tratada como uma string simples.
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

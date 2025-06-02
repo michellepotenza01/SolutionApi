@@ -3,7 +3,7 @@ using SolutionApi.DTOs;
 using SolutionApi.Models;
 using SolutionApi.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SolutionApi.Controllers
 {
@@ -21,29 +21,35 @@ namespace SolutionApi.Controllers
 
         // GET: api/Voluntarios
         [HttpGet]
-        [EndpointSummary("Listar todos os voluntários")]
-        [EndpointDescription("Este endpoint retorna todos os voluntários cadastrados.")]
+        [SwaggerOperation(Summary = "Listar todos os voluntários", Description = "Este endpoint retorna todos os voluntários cadastrados.")]
         [ProducesResponseType(typeof(IEnumerable<VoluntarioDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetVoluntarios()
         {
-            var voluntarios = await _context.Voluntarios.Include(v => v.Pessoa).Include(v => v.Abrigo).ToListAsync();
+            var voluntarios = await _context.Voluntarios
+                .Include(v => v.Pessoa)  // Inclui as informações da Pessoa associada
+                .Include(v => v.Abrigo)  // Inclui as informações do Abrigo associado
+                .ToListAsync();
+
             if (voluntarios == null || !voluntarios.Any())
             {
-                return NoContent();  // Retorna NoContent se não houver voluntários
+                return NoContent();  // Caso não haja voluntários, retorna NoContent
             }
+
             return Ok(voluntarios);
         }
 
         // GET: api/Voluntarios/{cpf}
         [HttpGet("{cpf}")]
-        [EndpointSummary("Buscar voluntário por CPF")]
-        [EndpointDescription("Este endpoint busca um voluntário através do CPF.")]
+        [SwaggerOperation(Summary = "Buscar voluntário por CPF", Description = "Este endpoint busca um voluntário através do CPF.")]
         [ProducesResponseType(typeof(VoluntarioDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetVoluntario(string cpf)
         {
-            var voluntario = await _context.Voluntarios.Include(v => v.Pessoa).Include(v => v.Abrigo).FirstOrDefaultAsync(v => v.CPF == cpf);
+            var voluntario = await _context.Voluntarios
+                .Include(v => v.Pessoa)
+                .Include(v => v.Abrigo)
+                .FirstOrDefaultAsync(v => v.CPF == cpf);
 
             if (voluntario == null)
             {
@@ -55,8 +61,7 @@ namespace SolutionApi.Controllers
 
         // POST: api/Voluntarios
         [HttpPost]
-        [EndpointSummary("Cadastrar novo voluntário")]
-        [EndpointDescription("Este endpoint cria um novo voluntário.")]
+        [SwaggerOperation(Summary = "Cadastrar novo voluntário", Description = "Este endpoint cria um novo voluntário. Deve associar o CPF de uma pessoa existente.")]
         [ProducesResponseType(typeof(VoluntarioDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostVoluntario([FromBody] VoluntarioDto voluntarioDto)
@@ -66,24 +71,20 @@ namespace SolutionApi.Controllers
                 return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
-            // Verificar se a pessoa associada ao voluntário já existe
             var pessoa = await _context.Pessoas.FindAsync(voluntarioDto.CPF);
             if (pessoa == null)
             {
                 return BadRequest(new { message = "CPF não encontrado para associar ao voluntário." });
             }
 
-            // Criar o novo voluntário
             var voluntario = new Voluntario
             {
                 RG = voluntarioDto.RG,
                 CPF = voluntarioDto.CPF,
                 Funcao = voluntarioDto.Funcao,
-                NomeAbrigo = voluntarioDto.NomeAbrigo
+                NomeAbrigo = voluntarioDto.NomeAbrigo,
+                Pessoa = pessoa  // Associa a pessoa com o voluntário
             };
-
-            // Associando a pessoa ao voluntário
-            voluntario.Pessoa = pessoa;
 
             _context.Voluntarios.Add(voluntario);
             await _context.SaveChangesAsync();
@@ -93,8 +94,7 @@ namespace SolutionApi.Controllers
 
         // PUT: api/Voluntarios/{cpf}
         [HttpPut("{cpf}")]
-        [EndpointSummary("Atualizar dados de um voluntário")]
-        [EndpointDescription("Este endpoint permite atualizar os dados de um voluntário.")]
+        [SwaggerOperation(Summary = "Atualizar dados de um voluntário", Description = "Este endpoint permite atualizar os dados de um voluntário associado ao CPF.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutVoluntario(string cpf, [FromBody] VoluntarioDto voluntarioDto)
@@ -117,8 +117,7 @@ namespace SolutionApi.Controllers
 
         // DELETE: api/Voluntarios/{cpf}
         [HttpDelete("{cpf}")]
-        [EndpointSummary("Deletar um voluntário")]
-        [EndpointDescription("Este endpoint exclui um voluntário do sistema.")]
+        [SwaggerOperation(Summary = "Deletar um voluntário", Description = "Este endpoint exclui um voluntário do sistema com base no CPF.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteVoluntario(string cpf)

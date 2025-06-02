@@ -5,7 +5,6 @@ namespace SolutionApi.DTOs
 {
     public class VoluntarioDto
     {
-        [Key]
         [Required(ErrorMessage = "O RG do voluntário é obrigatório.")]
         [Display(Name = "RG", Description = "RG único do voluntário.")]
         public string RG { get; set; }
@@ -19,7 +18,6 @@ namespace SolutionApi.DTOs
         [Display(Name = "Função", Description = "Função ou cargo do voluntário.")]
         public string Funcao { get; set; }
 
-        [ForeignKey("Abrigo")]
         [Required(ErrorMessage = "O nome do abrigo é obrigatório.")]
         [MaxLength(100, ErrorMessage = "O nome do abrigo não pode ter mais de 100 caracteres.")]
         [Display(Name = "Nome do Abrigo", Description = "Nome do abrigo ao qual o voluntário está associado.")]

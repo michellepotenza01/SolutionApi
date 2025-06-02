@@ -3,14 +3,15 @@ using SolutionApi.DTOs;
 using SolutionApi.Models;
 using SolutionApi.Data;
 using Microsoft.EntityFrameworkCore;
-using SolutionApi.Enums;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
 namespace SolutionApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Tags("Avisos")]
+    //[ApiExplorerSettings(GroupName = "Avisos")]  // Agrupando no grupo "Avisos" no Swagger
+    [Tags("Avisos")]   //Para categorizar os endpoints no Swagger
     public class AvisoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -20,16 +21,14 @@ namespace SolutionApi.Controllers
             _context = context;
         }
 
-        // GET: api/aviso
+        // GET: api/Avisos
         [HttpGet]
-        [EndpointSummary("Retorna todos os avisos.")]
-        [EndpointDescription("Retorna uma lista com todos os avisos registrados.")]
-        [ProducesResponseType(typeof(IEnumerable<Aviso>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [SwaggerOperation(Summary = "Retorna todos os avisos", Description = "Retorna uma lista com todos os avisos registrados.")]
+        [ProducesResponseType(typeof(IEnumerable<Aviso>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetAvisos()
         {
             var avisos = await _context.Avisos.ToListAsync();
-
             if (avisos == null || !avisos.Any())
             {
                 return NoContent();
@@ -38,16 +37,14 @@ namespace SolutionApi.Controllers
             return Ok(avisos);
         }
 
-        // GET: api/aviso/{tipoAviso}
+        // GET: api/Avisos/{tipoAviso}
         [HttpGet("{tipoAviso}")]
-        [EndpointSummary("Retorna um aviso pelo tipo.")]
-        [EndpointDescription("Retorna um aviso baseado no tipo do evento climático.")]
-        [ProducesResponseType(typeof(Aviso), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Summary = "Retorna um aviso pelo tipo", Description = "Retorna um aviso baseado no tipo do evento climático.")]
+        [ProducesResponseType(typeof(Aviso), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAviso(string tipoAviso)
         {
-            var aviso = await _context.Avisos
-                .FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
+            var aviso = await _context.Avisos.FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
 
             if (aviso == null)
             {
@@ -57,12 +54,11 @@ namespace SolutionApi.Controllers
             return Ok(aviso);
         }
 
-        // POST: api/aviso
+        // POST: api/Avisos
         [HttpPost]
-        [EndpointSummary("Cria um novo aviso.")]
-        [EndpointDescription("Cria um novo aviso com as informações fornecidas.")]
-        [ProducesResponseType(typeof(Aviso), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [SwaggerOperation(Summary = "Cria um novo aviso", Description = "Cria um novo aviso com as informações fornecidas.")]
+        [ProducesResponseType(typeof(Aviso), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateAviso([FromBody] AvisoDto avisoDto)
         {
             if (!ModelState.IsValid)
@@ -84,13 +80,12 @@ namespace SolutionApi.Controllers
             return CreatedAtAction(nameof(GetAviso), new { tipoAviso = aviso.TipoAviso }, aviso);
         }
 
-        // PUT: api/aviso/{tipoAviso}
+        // PUT: api/Avisos/{tipoAviso}
         [HttpPut("{tipoAviso}")]
-        [EndpointSummary("Atualiza um aviso existente.")]
-        [EndpointDescription("Atualiza as informações de um aviso baseado no tipo do evento climático.")]
-        [ProducesResponseType(typeof(Aviso), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Summary = "Atualiza um aviso existente", Description = "Atualiza as informações de um aviso baseado no tipo do evento climático.")]
+        [ProducesResponseType(typeof(Aviso), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateAviso(string tipoAviso, [FromBody] AvisoDto avisoDto)
         {
             if (!ModelState.IsValid)
@@ -98,8 +93,7 @@ namespace SolutionApi.Controllers
                 return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
-            var aviso = await _context.Avisos
-                .FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
+            var aviso = await _context.Avisos.FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
 
             if (aviso == null)
             {
@@ -116,16 +110,14 @@ namespace SolutionApi.Controllers
             return Ok(aviso);
         }
 
-        // DELETE: api/aviso/{tipoAviso}
+        // DELETE: api/Avisos/{tipoAviso}
         [HttpDelete("{tipoAviso}")]
-        [EndpointSummary("Deleta um aviso.")]
-        [EndpointDescription("Deleta um aviso existente com base no tipo do evento climático.")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [SwaggerOperation(Summary = "Deleta um aviso", Description = "Deleta um aviso existente com base no tipo do evento climático.")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteAviso(string tipoAviso)
         {
-            var aviso = await _context.Avisos
-                .FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
+            var aviso = await _context.Avisos.FirstOrDefaultAsync(a => a.TipoAviso == tipoAviso);
 
             if (aviso == null)
             {
