@@ -7,56 +7,79 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SolutionApi.Controllers
 {
+    /// <summary>
+    /// Controller para gerenciar as pessoas.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    [Tags("Voluntários")]
-    //[ApiExplorerSettings(GroupName = "Pessoas")] // Agrupando os endpoints de "Pessoas"
+    //[ApiExplorerSettings(GroupName = "Pessoas")]
+    //[Tags("Pessoas")]
     public class PessoaController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Construtor do controller de pessoas.
+        /// </summary>
+        /// <param name="context">Contexto de acesso ao banco de dados.</param>
         public PessoaController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Pessoas
+        /// <summary>
+        /// Retorna todas as pessoas cadastradas.
+        /// </summary>
+        /// <returns>Uma lista de pessoas ou uma resposta de 'No Content' se não houver pessoas.</returns>
         [HttpGet]
         [SwaggerOperation(Summary = "Listar todas as pessoas", Description = "Este endpoint retorna todas as pessoas cadastradas.")]
         [ProducesResponseType(typeof(IEnumerable<PessoaDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> GetPessoas()
+        [Produces("application/json")]
+        public async Task<ActionResult<IEnumerable<Pessoa>>> GetPessoas()
         {
             var pessoas = await _context.Pessoas.ToListAsync();
-            if (pessoas == null || !pessoas.Any())
+
+            if (!pessoas.Any())
             {
-                return NoContent();
+                return NoContent(); // Retorno caso não haja pessoas cadastradas
             }
-            return Ok(pessoas);
+
+            return Ok(pessoas); // Retorna a lista de pessoas
         }
 
-        // GET: api/Pessoas/{cpf}
+        /// <summary>
+        /// Retorna uma pessoa pelo CPF.
+        /// </summary>
+        /// <param name="cpf">O CPF da pessoa.</param>
+        /// <returns>A pessoa encontrada ou uma resposta de 'Not Found' se não encontrar.</returns>
         [HttpGet("{cpf}")]
         [SwaggerOperation(Summary = "Buscar pessoa por CPF", Description = "Este endpoint busca uma pessoa através do CPF.")]
         [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPessoa(string cpf)
+        [Produces("application/json")]
+        public async Task<ActionResult<Pessoa>> GetPessoa(string cpf)
         {
             var pessoa = await _context.Pessoas.FindAsync(cpf);
 
             if (pessoa == null)
             {
-                return NotFound(new { message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada com o CPF fornecido." });
             }
 
-            return Ok(pessoa);
+            return Ok(pessoa); // Retorna a pessoa encontrada
         }
 
-        // POST: api/Pessoas
+        /// <summary>
+        /// Cadastra uma nova pessoa.
+        /// </summary>
+        /// <param name="pessoaDto">Os dados da pessoa a ser cadastrada.</param>
+        /// <returns>Resposta de sucesso com a pessoa criada ou erro de validação.</returns>
         [HttpPost]
         [SwaggerOperation(Summary = "Cadastrar nova pessoa", Description = "Este endpoint cria uma nova pessoa.")]
         [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<IActionResult> PostPessoa([FromBody] PessoaDto pessoaDto)
         {
             if (!ModelState.IsValid)
@@ -78,20 +101,27 @@ namespace SolutionApi.Controllers
             _context.Pessoas.Add(pessoa);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetPessoa), new { cpf = pessoa.CPF }, pessoa);
+            return CreatedAtAction(nameof(GetPessoa), new { cpf = pessoa.CPF }, pessoa); // Retorno de sucesso com o recurso criado
         }
 
-        // PUT: api/Pessoas/{cpf}
+        /// <summary>
+        /// Atualiza os dados de uma pessoa.
+        /// </summary>
+        /// <param name="cpf">O CPF da pessoa a ser atualizada.</param>
+        /// <param name="pessoaDto">Os novos dados da pessoa.</param>
+        /// <returns>Resposta de sucesso ou erro de validação.</returns>
         [HttpPut("{cpf}")]
         [SwaggerOperation(Summary = "Atualizar dados de uma pessoa", Description = "Este endpoint permite atualizar os dados de uma pessoa.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<IActionResult> PutPessoa(string cpf, [FromBody] PessoaDto pessoaDto)
         {
             var pessoa = await _context.Pessoas.FindAsync(cpf);
+
             if (pessoa == null)
             {
-                return NotFound(new { message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada para atualização." });
             }
 
             pessoa.Nome = pessoaDto.Nome;
@@ -104,26 +134,32 @@ namespace SolutionApi.Controllers
             _context.Entry(pessoa).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); // Retorno de sucesso sem conteúdo (indicando que foi atualizado)
         }
 
-        // DELETE: api/Pessoas/{cpf}
+        /// <summary>
+        /// Deleta uma pessoa.
+        /// </summary>
+        /// <param name="cpf">O CPF da pessoa a ser excluída.</param>
+        /// <returns>Resposta de sucesso ou erro se não encontrar a pessoa.</returns>
         [HttpDelete("{cpf}")]
         [SwaggerOperation(Summary = "Deletar uma pessoa", Description = "Este endpoint exclui uma pessoa do sistema com base no CPF.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<IActionResult> DeletePessoa(string cpf)
         {
             var pessoa = await _context.Pessoas.FindAsync(cpf);
+
             if (pessoa == null)
             {
-                return NotFound(new { message = "Pessoa não encontrada." });
+                return NotFound(new { message = "Pessoa não encontrada para exclusão." });
             }
 
             _context.Pessoas.Remove(pessoa);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); // Confirmação de exclusão sem conteúdo
         }
     }
 }

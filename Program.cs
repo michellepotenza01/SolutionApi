@@ -1,7 +1,8 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SolutionApi.Data;
-using System.Text.Json.Serialization;
+using Swashbuckle.AspNetCore.Annotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +16,17 @@ builder.Services.AddControllers()
     {
         // Adicionar suporte para conversão de enums para string
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+
     });
 
+// Adicionar o EndpointsApiExplorer para Swagger detectar os controladores
+builder.Services.AddEndpointsApiExplorer();
+
 // Configuração do Swagger/OpenAPI com metadados e versão
-builder.Services.AddEndpointsApiExplorer();  // Importante para Swagger detectar os controladores
 builder.Services.AddSwaggerGen(c =>
 {
+    // Definindo o SwaggerDoc
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "SolutionApi",
@@ -35,14 +41,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     // Habilitar anotações para os controllers
-    c.EnableAnnotations();  // Importante para garantir que os atributos de anotações sejam respeitados
-
-    // Adicionar tags para os controllers com base no nome do controlador
-    c.TagActionsBy(api =>
-    {
-        var controllerName = api.ActionDescriptor.RouteValues["controller"];
-        return controllerName != null ? new List<string> { controllerName } : new List<string>();
-    });
+    c.EnableAnnotations();
 });
 
 var app = builder.Build();
@@ -50,18 +49,18 @@ var app = builder.Build();
 // Configuração do pipeline de requisições HTTP
 if (app.Environment.IsDevelopment())
 {
+    // Ativa o Swagger e a UI do Swagger para testes
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "SolutionApi v1");
-        c.RoutePrefix = string.Empty;  // Swagger acessível no root "/"
+        c.RoutePrefix = string.Empty;  // Swagger UI na URL raiz (http://localhost:5000)
     });
 }
 
-app.UseHttpsRedirection();
+// Mapeando Controllers para garantir que eles sejam reconhecidos pelo Swagger
+Console.WriteLine("Mapeando Controllers...");
+app.MapControllers();
 
-// Mapear Controllers para garantir que eles sejam reconhecidos
-app.MapControllers();  // Este método é essencial para mapear os controladores
-
-// Inicia o servidor
-app.Run("http://localhost:8080");
+// Inicia o servidor na porta 5000
+app.Run("http://localhost:5000");  // Usando a porta 5000

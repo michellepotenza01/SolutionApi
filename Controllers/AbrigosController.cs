@@ -7,59 +7,79 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SolutionApi.Controllers
 {
+    /// <summary>
+    /// Controlador para gerenciar as operações dos abrigos.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(GroupName = "Abrigos")] // Agrupando este controller no grupo "Abrigos"
-    [Tags("Abrigos")]
+    //[ApiExplorerSettings(GroupName = "Abrigos")]
+    //[Tags("Abrigos")]
     public class AbrigoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
+        /// <summary>
+        /// Construtor do controller de Abrigo.
+        /// </summary>
+        /// <param name="context">Contexto de acesso ao banco de dados.</param>
         public AbrigoController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/abrigos
+        /// <summary>
+        /// Retorna todos os abrigos registrados.
+        /// </summary>
+        /// <returns>Lista de abrigos</returns>
         [HttpGet]
         [SwaggerOperation(Summary = "Retorna todos os abrigos", Description = "Este endpoint retorna uma lista com todos os abrigos registrados.")]
         [ProducesResponseType(typeof(IEnumerable<AbrigoDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> GetAbrigos()
+        [Produces("application/json")]
+        public async Task<ActionResult<IEnumerable<Abrigo>>> GetAbrigos()
         {
             var abrigos = await _context.Abrigos.ToListAsync();
 
-            if (abrigos == null || !abrigos.Any())
+            if (!abrigos.Any())
             {
-                return NoContent();  // Caso não haja abrigos, retorna NoContent
+                return NoContent();
             }
 
-            return Ok(abrigos);  // Retorna todos os abrigos
+            return Ok(abrigos);
         }
 
-        // GET: api/abrigos/{nomeAbrigo}
+        /// <summary>
+        /// Retorna um abrigo específico pelo nome.
+        /// </summary>
+        /// <param name="nomeAbrigo">Nome do abrigo</param>
+        /// <returns>Detalhes do abrigo</returns>
         [HttpGet("{nomeAbrigo}")]
         [SwaggerOperation(Summary = "Retorna um abrigo pelo nome.", Description = "Este endpoint retorna um abrigo baseado no nome.")]
         [ProducesResponseType(typeof(Abrigo), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAbrigo(string nomeAbrigo)
+        [Produces("application/json")]
+        public async Task<ActionResult<Abrigo>> GetAbrigo(string nomeAbrigo)
         {
-            var abrigo = await _context.Abrigos
-                .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
+            var abrigo = await _context.Abrigos.FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
             {
                 return NotFound(new { message = "Abrigo não encontrado." });
             }
 
-            return Ok(abrigo); // Retorna o abrigo encontrado
+            return Ok(abrigo);
         }
 
-        // POST: api/abrigos
+        /// <summary>
+        /// Cria um novo abrigo.
+        /// </summary>
+        /// <param name="abrigoDto">Dados do abrigo a ser criado</param>
+        /// <returns>Resultado da criação</returns>
         [HttpPost]
         [SwaggerOperation(Summary = "Cria um novo abrigo.", Description = "Este endpoint cria um novo abrigo com as informações fornecidas.")]
         [ProducesResponseType(typeof(AbrigoDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces("application/json")]
         public async Task<IActionResult> CreateAbrigo([FromBody] AbrigoDto abrigoDto)
         {
             if (!ModelState.IsValid)
@@ -80,12 +100,18 @@ namespace SolutionApi.Controllers
             return CreatedAtAction(nameof(GetAbrigo), new { nomeAbrigo = abrigo.NomeAbrigo }, abrigo);
         }
 
-        // PUT: api/abrigos/{nomeAbrigo}
+        /// <summary>
+        /// Atualiza um abrigo existente.
+        /// </summary>
+        /// <param name="nomeAbrigo">Nome do abrigo</param>
+        /// <param name="abrigoDto">Dados atualizados do abrigo</param>
+        /// <returns>Resultado da atualização</returns>
         [HttpPut("{nomeAbrigo}")]
         [SwaggerOperation(Summary = "Atualiza um abrigo existente.", Description = "Este endpoint atualiza as informações de um abrigo com base no nome.")]
         [ProducesResponseType(typeof(Abrigo), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<IActionResult> UpdateAbrigo(string nomeAbrigo, [FromBody] AbrigoDto abrigoDto)
         {
             if (!ModelState.IsValid)
@@ -93,8 +119,7 @@ namespace SolutionApi.Controllers
                 return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
             }
 
-            var abrigo = await _context.Abrigos
-                .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
+            var abrigo = await _context.Abrigos.FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
             {
@@ -110,15 +135,19 @@ namespace SolutionApi.Controllers
             return Ok(abrigo);
         }
 
-        // DELETE: api/abrigos/{nomeAbrigo}
+        /// <summary>
+        /// Deleta um abrigo existente.
+        /// </summary>
+        /// <param name="nomeAbrigo">Nome do abrigo</param>
+        /// <returns>Resultado da exclusão</returns>
         [HttpDelete("{nomeAbrigo}")]
         [SwaggerOperation(Summary = "Deleta um abrigo.", Description = "Este endpoint deleta um abrigo existente com base no nome.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<IActionResult> DeleteAbrigo(string nomeAbrigo)
         {
-            var abrigo = await _context.Abrigos
-                .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
+            var abrigo = await _context.Abrigos.FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
             {
@@ -131,15 +160,19 @@ namespace SolutionApi.Controllers
             return NoContent();
         }
 
-        // GET: api/abrigos/{nomeAbrigo}/voluntarios
+        /// <summary>
+        /// Retorna todos os voluntários associados a um abrigo.
+        /// </summary>
+        /// <param name="nomeAbrigo">Nome do abrigo</param>
+        /// <returns>Lista de voluntários associados ao abrigo</returns>
         [HttpGet("{nomeAbrigo}/voluntarios")]
         [SwaggerOperation(Summary = "Listar voluntários associados a um abrigo", Description = "Este endpoint retorna todos os voluntários associados a um abrigo pelo nome.")]
         [ProducesResponseType(typeof(IEnumerable<VoluntarioDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces("application/json")]
         public async Task<IActionResult> GetVoluntariosByAbrigo(string nomeAbrigo)
         {
-            var abrigo = await _context.Abrigos
-                .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
+            var abrigo = await _context.Abrigos.FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
             {
@@ -150,7 +183,7 @@ namespace SolutionApi.Controllers
                 .Where(v => v.NomeAbrigo == nomeAbrigo)
                 .ToListAsync();
 
-            return Ok(voluntarios);  // Retorna todos os voluntários associados ao abrigo
+            return Ok(voluntarios);
         }
     }
 }
