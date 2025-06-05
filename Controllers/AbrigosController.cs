@@ -12,8 +12,7 @@ namespace SolutionApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(GroupName = "Abrigos")]
-    //[Tags("Abrigos")]
+    [Tags("Abrigos")]
     public class AbrigoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -38,15 +37,32 @@ namespace SolutionApi.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<Abrigo>>> GetAbrigos()
         {
-            var abrigos = await _context.Abrigos.ToListAsync();
+            var abrigos = await _context.Abrigos
+                .Include(a => a.Voluntarios) // Inclui os voluntários associados ao abrigo
+                .ToListAsync();
 
             if (!abrigos.Any())
             {
-                return NoContent();
+                return NoContent(); // Retorna 204 No Content caso não haja abrigos
             }
 
-            return Ok(abrigos);
+            // Criação de uma resposta limpa e estruturada
+            var response = abrigos.Select(abrigo => new AbrigoDto
+            {
+                NomeAbrigo = abrigo.NomeAbrigo,
+                Bairro = abrigo.Bairro,
+                Tamanho = abrigo.Tamanho,
+                Voluntarios = [.. abrigo.Voluntarios.Select(voluntario => new VoluntarioDto
+                {
+                    RG = voluntario.RG,
+                    CPF = voluntario.CPF,
+                    Funcao = voluntario.Funcao
+                })]
+            }).ToList();
+
+            return Ok(new { message = "Lista de abrigos carregada com sucesso.", data = response });
         }
+
 
         /// <summary>
         /// Retorna um abrigo específico pelo nome.
@@ -60,14 +76,35 @@ namespace SolutionApi.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<Abrigo>> GetAbrigo(string nomeAbrigo)
         {
-            var abrigo = await _context.Abrigos.FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
+            var abrigo = await _context.Abrigos
+                .Include(a => a.Voluntarios)  // Inclui os voluntários associados ao abrigo
+                .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
             {
                 return NotFound(new { message = "Abrigo não encontrado." });
             }
 
-            return Ok(abrigo);
+            // Criação da resposta personalizada
+            var response = new
+            {
+                message = $"Abrigo: {abrigo.NomeAbrigo} carregado com sucesso.",
+                abrigoInfo = new
+                {
+                    nomeAbrigo = abrigo.NomeAbrigo,
+                    bairro = abrigo.Bairro,
+                    tamanho = abrigo.Tamanho.ToString(),
+                    voluntarios = abrigo.Voluntarios.Select(v => new
+                    {
+                        v.RG,
+                        v.CPF,
+                        v.Funcao,
+                        v.NomeAbrigo
+                    }).ToList()
+                }
+            };
+
+            return Ok(response);
         }
 
         /// <summary>
@@ -97,7 +134,7 @@ namespace SolutionApi.Controllers
             _context.Abrigos.Add(abrigo);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAbrigo), new { nomeAbrigo = abrigo.NomeAbrigo }, abrigo);
+            return CreatedAtAction(nameof(GetAbrigo), new { nomeAbrigo = abrigo.NomeAbrigo }, new { message = "Abrigo criado com sucesso.", data = abrigo });
         }
 
         /// <summary>
@@ -132,7 +169,7 @@ namespace SolutionApi.Controllers
             _context.Abrigos.Update(abrigo);
             await _context.SaveChangesAsync();
 
-            return Ok(abrigo);
+            return Ok(new { message = "Abrigo atualizado com sucesso.", data = abrigo });
         }
 
         /// <summary>
@@ -157,7 +194,7 @@ namespace SolutionApi.Controllers
             _context.Abrigos.Remove(abrigo);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); // Retorna sucesso sem conteúdo
         }
 
         /// <summary>
@@ -183,7 +220,7 @@ namespace SolutionApi.Controllers
                 .Where(v => v.NomeAbrigo == nomeAbrigo)
                 .ToListAsync();
 
-            return Ok(voluntarios);
+            return Ok(new { message = "Voluntários associados ao abrigo carregados com sucesso.", data = voluntarios });
         }
     }
 }

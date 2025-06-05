@@ -19,7 +19,7 @@ namespace SolutionApi.Models
         [Required(ErrorMessage = "O tipo de aviso é obrigatório.")]
         [Display(Name = "Tipo de Aviso", Description = "Tipo do evento climático (Ex: Alagamento, Calor, etc.).")]
         [SwaggerSchema(Description = "Tipo de aviso (ex: Alagamento, Calor, etc.).")]
-        public string TipoAviso { get; set; }
+        public required string TipoAviso { get; set; }
 
         /// <summary>
         /// Descrição detalhada da ocorrência do evento climático.
@@ -28,7 +28,7 @@ namespace SolutionApi.Models
         [MaxLength(500, ErrorMessage = "A descrição da ocorrência não pode ter mais de 500 caracteres.")]
         [Display(Name = "Ocorrência", Description = "Descrição detalhada do evento climático ocorrido.")]
         [SwaggerSchema(Description = "Descrição detalhada do evento climático ocorrido.")]
-        public string Ocorrencia { get; set; }
+        public required string Ocorrencia { get; set; }
 
         /// <summary>
         /// A gravidade do evento climático (Alta, Média ou Baixa).
@@ -36,7 +36,7 @@ namespace SolutionApi.Models
         [Required(ErrorMessage = "A gravidade é obrigatória.")]
         [EnumDataType(typeof(Gravidade))]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        [Display(Name = "Gravidade", Description = "Gravidade do evento climático (Alta, Média ou Baixa).")]
+        [Display(Name = "Gravidade", Description = "Gravidade do evento climático (Alta, Media ou Baixa).")]
         [SwaggerSchema(Description = "Gravidade do evento (Alta, Média ou Baixa).")]
         public Gravidade Gravidade { get; set; }
 
@@ -47,7 +47,7 @@ namespace SolutionApi.Models
         [MaxLength(100, ErrorMessage = "O bairro não pode ter mais de 100 caracteres.")]
         [Display(Name = "Bairro", Description = "Bairro(s) afetado(s) pelo evento climático.")]
         [SwaggerSchema(Description = "Bairro(s) afetado(s) pelo evento climático.")]
-        public string Bairro { get; set; }
+        public required string Bairro { get; set; }
     }
 
 }

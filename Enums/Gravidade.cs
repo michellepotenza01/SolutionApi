@@ -11,7 +11,7 @@ namespace SolutionApi.Enums
         /// <summary>
         /// Evento climático com alta gravidade.
         /// </summary>
-        Alta,
+        Baixa,
 
         /// <summary>
         /// Evento climático com gravidade média.
@@ -21,6 +21,6 @@ namespace SolutionApi.Enums
         /// <summary>
         /// Evento climático com baixa gravidade.
         /// </summary>
-        Baixa
+        Alta
     }
 }

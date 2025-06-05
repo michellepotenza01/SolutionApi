@@ -17,21 +17,18 @@ builder.Services.AddControllers()
         // Adicionar suporte para conversão de enums para string
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-
     });
 
 // Adicionar o EndpointsApiExplorer para Swagger detectar os controladores
 builder.Services.AddEndpointsApiExplorer();
 
-// Configuração do Swagger/OpenAPI com metadados e versão
 builder.Services.AddSwaggerGen(c =>
 {
-    // Definindo o SwaggerDoc
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "SolutionApi",
         Version = "v1",
-        Description = "API para gerenciar informações sobre prevenção de eventos climáticos extremos.",
+        Description = "API para gerenciar informações sobre prevenção de eventos climáticos extremos, incluindo o gerenciamento de voluntários, abrigos e avisos climáticos.",
         Contact = new OpenApiContact
         {
             Name = "Equipe SolutionAPI",
@@ -40,21 +37,23 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Habilitar anotações para os controllers
+    // anotações para os controllers
     c.EnableAnnotations();
 });
 
 var app = builder.Build();
 
-// Configuração do pipeline de requisições HTTP
+//pipeline de requisições HTTP
 if (app.Environment.IsDevelopment())
 {
-    // Ativa o Swagger e a UI do Swagger para testes
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
+        // Redefine o Swagger para abrir diretamente na página inicial
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "SolutionApi v1");
-        c.RoutePrefix = string.Empty;  // Swagger UI na URL raiz (http://localhost:5000)
+
+        // Aqui você pode configurar para carregar o Swagger diretamente no root
+        c.RoutePrefix = string.Empty;  // Isso faz com que o Swagger UI seja carregado diretamente na raiz (http://localhost:5000)
     });
 }
 

@@ -13,8 +13,6 @@ namespace SolutionApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Tags("Voluntários")]
-    //[ApiExplorerSettings(GroupName = "Voluntários")]
-    //[Tags("Voluntários")]
     public class VoluntarioController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -37,7 +35,7 @@ namespace SolutionApi.Controllers
         [ProducesResponseType(typeof(IEnumerable<VoluntarioDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<Voluntario>>> GetVoluntarios()
+        public async Task<ActionResult<IEnumerable<VoluntarioDto>>> GetVoluntarios()
         {
             var voluntarios = await _context.Voluntarios
                 .Include(v => v.Pessoa)
@@ -49,7 +47,27 @@ namespace SolutionApi.Controllers
                 return NoContent(); // Retorno caso não haja voluntários cadastrados
             }
 
-            return Ok(voluntarios); // Retorna a lista de voluntários
+            // Projeção para remover $id e $values
+            var response = voluntarios.Select(v => new
+            {
+                message = $"Voluntário {v.Pessoa.Nome} associado ao abrigo {v.Abrigo.NomeAbrigo}.",
+                data = new
+                {
+                    v.RG,
+                    v.CPF,
+                    v.Funcao,
+                    v.Abrigo.NomeAbrigo,
+                    pessoa = new
+                    {
+                        v.Pessoa.Nome,
+                        v.Pessoa.Idade,
+                        v.Pessoa.Bairro,
+                        v.Pessoa.PCD
+                    }
+                }
+            }).ToList();
+
+            return Ok(new { message = "Lista de voluntários carregada com sucesso.", data = response }); // Retorna a resposta com a mensagem de sucesso e dados
         }
 
         /// <summary>
@@ -62,7 +80,7 @@ namespace SolutionApi.Controllers
         [ProducesResponseType(typeof(VoluntarioDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
-        public async Task<ActionResult<Voluntario>> GetVoluntario(string cpf)
+        public async Task<ActionResult<VoluntarioDto>> GetVoluntario(string cpf)
         {
             var voluntario = await _context.Voluntarios
                 .Include(v => v.Pessoa)
@@ -74,7 +92,26 @@ namespace SolutionApi.Controllers
                 return NotFound(new { message = "Voluntário não encontrado com o CPF fornecido." });
             }
 
-            return Ok(voluntario); // Retorna o voluntário encontrado
+            var response = new
+            {
+                message = $"Voluntário {voluntario.Pessoa.Nome} encontrado com sucesso.",
+                data = new
+                {
+                    voluntario.RG,
+                    voluntario.CPF,
+                    voluntario.Funcao,
+                    voluntario.Abrigo.NomeAbrigo,
+                    pessoa = new
+                    {
+                        voluntario.Pessoa.Nome,
+                        voluntario.Pessoa.Idade,
+                        voluntario.Pessoa.Bairro,
+                        voluntario.Pessoa.PCD
+                    }
+                }
+            };
+
+            return Ok(response);
         }
 
         /// <summary>
@@ -116,9 +153,8 @@ namespace SolutionApi.Controllers
             _context.Voluntarios.Add(voluntario);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetVoluntario), new { cpf = voluntario.CPF }, voluntario); // Retorno com o voluntário criado
+            return CreatedAtAction(nameof(GetVoluntario), new { cpf = voluntario.CPF }, new { message = "Voluntário criado com sucesso.", data = voluntario });
         }
-
 
         /// <summary>
         /// Atualiza os dados de um voluntário.

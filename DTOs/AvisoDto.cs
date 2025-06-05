@@ -13,7 +13,7 @@ namespace SolutionApi.DTOs
         /// </summary>
         [Required(ErrorMessage = "O tipo de aviso é obrigatório.")]
         [Display(Name = "Tipo de Aviso", Description = "Tipo do evento climático (Ex: Alagamento, Calor, etc.).")]
-        public string TipoAviso { get; set; }
+        public required string TipoAviso { get; set; }
 
         /// <summary>
         /// Descrição detalhada do evento climático ocorrido.
@@ -21,7 +21,7 @@ namespace SolutionApi.DTOs
         [Required(ErrorMessage = "A ocorrência do evento climático é obrigatória.")]
         [MaxLength(500, ErrorMessage = "A descrição da ocorrência não pode ter mais de 500 caracteres.")]
         [Display(Name = "Ocorrência", Description = "Descrição detalhada do evento climático ocorrido.")]
-        public string Ocorrencia { get; set; }
+        public required string Ocorrencia { get; set; }
 
         /// <summary>
         /// Gravidade do evento climático (Alta, Média ou Baixa).
@@ -37,6 +37,6 @@ namespace SolutionApi.DTOs
         [Required(ErrorMessage = "O bairro afetado é obrigatório.")]
         [MaxLength(100, ErrorMessage = "O bairro não pode ter mais de 100 caracteres.")]
         [Display(Name = "Bairro", Description = "Bairro(s) afetado(s) pelo evento climático.")]
-        public string Bairro { get; set; }
+        public required string Bairro { get; set; }
     }
 }

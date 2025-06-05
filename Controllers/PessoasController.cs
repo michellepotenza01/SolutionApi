@@ -12,8 +12,7 @@ namespace SolutionApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    //[ApiExplorerSettings(GroupName = "Pessoas")]
-    //[Tags("Pessoas")]
+    [Tags("Pessoas")]
     public class PessoaController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -33,7 +32,7 @@ namespace SolutionApi.Controllers
         /// <returns>Uma lista de pessoas ou uma resposta de 'No Content' se não houver pessoas.</returns>
         [HttpGet]
         [SwaggerOperation(Summary = "Listar todas as pessoas", Description = "Este endpoint retorna todas as pessoas cadastradas.")]
-        [ProducesResponseType(typeof(IEnumerable<PessoaDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [Produces("application/json")]
         public async Task<ActionResult<IEnumerable<Pessoa>>> GetPessoas()
@@ -42,10 +41,25 @@ namespace SolutionApi.Controllers
 
             if (!pessoas.Any())
             {
-                return NoContent(); // Retorno caso não haja pessoas cadastradas
+                return NoContent(); // Retorna caso não haja pessoas cadastradas
             }
 
-            return Ok(pessoas); // Retorna a lista de pessoas
+            // Resposta limpa com as informações relevantes
+            var response = pessoas.Select(p => new
+            {
+                message = $"Pessoa {p.Nome} encontrada com sucesso.",
+                data = new
+                {
+                    p.Nome,
+                    p.Idade,
+                    p.Bairro,
+                    p.PCD,
+                    p.CPF,
+                    p.Carreira
+                }
+            }).ToList();
+
+            return Ok(response); // Retorna a lista de pessoas com a mensagem de sucesso
         }
 
         /// <summary>
@@ -55,7 +69,7 @@ namespace SolutionApi.Controllers
         /// <returns>A pessoa encontrada ou uma resposta de 'Not Found' se não encontrar.</returns>
         [HttpGet("{cpf}")]
         [SwaggerOperation(Summary = "Buscar pessoa por CPF", Description = "Este endpoint busca uma pessoa através do CPF.")]
-        [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
         public async Task<ActionResult<Pessoa>> GetPessoa(string cpf)
@@ -67,7 +81,21 @@ namespace SolutionApi.Controllers
                 return NotFound(new { message = "Pessoa não encontrada com o CPF fornecido." });
             }
 
-            return Ok(pessoa); // Retorna a pessoa encontrada
+            var response = new
+            {
+                message = $"Pessoa {pessoa.Nome} encontrada com sucesso.",
+                data = new
+                {
+                    pessoa.Nome,
+                    pessoa.Idade,
+                    pessoa.Bairro,
+                    pessoa.PCD,
+                    pessoa.CPF,
+                    pessoa.Carreira
+                }
+            };
+
+            return Ok(response); // Retorna a pessoa encontrada com a mensagem de sucesso
         }
 
         /// <summary>
@@ -77,7 +105,7 @@ namespace SolutionApi.Controllers
         /// <returns>Resposta de sucesso com a pessoa criada ou erro de validação.</returns>
         [HttpPost]
         [SwaggerOperation(Summary = "Cadastrar nova pessoa", Description = "Este endpoint cria uma nova pessoa.")]
-        [ProducesResponseType(typeof(PessoaDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces("application/json")]
         public async Task<IActionResult> PostPessoa([FromBody] PessoaDto pessoaDto)
@@ -101,7 +129,7 @@ namespace SolutionApi.Controllers
             _context.Pessoas.Add(pessoa);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetPessoa), new { cpf = pessoa.CPF }, pessoa); // Retorno de sucesso com o recurso criado
+            return CreatedAtAction(nameof(GetPessoa), new { cpf = pessoa.CPF }, new { message = "Pessoa criada com sucesso.", data = pessoa });
         }
 
         /// <summary>
@@ -111,7 +139,7 @@ namespace SolutionApi.Controllers
         /// <param name="pessoaDto">Os novos dados da pessoa.</param>
         /// <returns>Resposta de sucesso ou erro de validação.</returns>
         [HttpPut("{cpf}")]
-        [SwaggerOperation(Summary = "Atualizar dados de uma pessoa", Description = "Este endpoint permite atualizar os dados de uma pessoa.")]
+        [SwaggerOperation(Summary = "Atualizar dados de uma pessoa", Description = "Este endpoint permite atualizar os dados de uma pessoa associada ao CPF.")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
@@ -134,7 +162,7 @@ namespace SolutionApi.Controllers
             _context.Entry(pessoa).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent(); // Retorno de sucesso sem conteúdo (indicando que foi atualizado)
+            return NoContent(); // Confirmação de sucesso sem conteúdo
         }
 
         /// <summary>
