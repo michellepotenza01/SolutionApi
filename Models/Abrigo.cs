@@ -20,7 +20,7 @@ namespace SolutionApi.Models
         [Required(ErrorMessage = "O nome do abrigo é obrigatório.")]
         [Display(Name = "Nome do Abrigo", Description = "Nome único do abrigo.")]
         [SwaggerSchema(Description = "Nome único do abrigo.")]
-        public required string NomeAbrigo { get; set; }
+        public string NomeAbrigo { get; set; }
 
         /// <summary>
         /// Bairro onde o abrigo está localizado.
@@ -28,7 +28,7 @@ namespace SolutionApi.Models
         [Required(ErrorMessage = "O bairro é obrigatório.")]
         [Display(Name = "Bairro", Description = "Bairro onde o abrigo está localizado.")]
         [SwaggerSchema(Description = "Bairro onde o abrigo está localizado.")]
-        public required string Bairro { get; set; }
+        public string Bairro { get; set; }
 
         /// <summary>
         /// Tamanho do abrigo (Pequeno, Médio ou Grande).
@@ -44,7 +44,7 @@ namespace SolutionApi.Models
         /// Lista de voluntários associados ao abrigo.
         /// </summary>
         [SwaggerSchema(Description = "Lista de voluntários associados ao abrigo.")]
-        public ICollection<Voluntario> Voluntarios { get; set; }
+        public ICollection<Voluntario> Voluntarios { get; set; } = new List<Voluntario>();
     }
 
 }

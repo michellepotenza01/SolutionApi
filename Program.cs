@@ -14,7 +14,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Adicionar suporte para conversão de enums para string
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
@@ -36,24 +35,19 @@ builder.Services.AddSwaggerGen(c =>
             Url = new Uri("https://solutionapi.com/contact")
         }
     });
-
-    // anotações para os controllers
     c.EnableAnnotations();
 });
 
 var app = builder.Build();
 
-//pipeline de requisições HTTP
+// Pipeline de requisições HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        // Redefine o Swagger para abrir diretamente na página inicial
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "SolutionApi v1");
-
-        // Aqui você pode configurar para carregar o Swagger diretamente no root
-        c.RoutePrefix = string.Empty;  // Isso faz com que o Swagger UI seja carregado diretamente na raiz (http://localhost:5000)
+        c.RoutePrefix = string.Empty; // Isso faz com que o Swagger UI seja carregado diretamente na raiz (http://localhost:5000)
     });
 }
 
@@ -62,4 +56,4 @@ Console.WriteLine("Mapeando Controllers...");
 app.MapControllers();
 
 // Inicia o servidor na porta 5000
-app.Run("http://localhost:5000");  // Usando a porta 5000
+app.Run("http://0.0.0.0:5000"); // Usando a porta 5000

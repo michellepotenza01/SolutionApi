@@ -77,7 +77,7 @@ namespace SolutionApi.Controllers
         public async Task<ActionResult<Abrigo>> GetAbrigo(string nomeAbrigo)
         {
             var abrigo = await _context.Abrigos
-                .Include(a => a.Voluntarios)  // Inclui os voluntários associados ao abrigo
+                .Include(a => a.Voluntarios) // Inclui voluntários caso haja
                 .FirstOrDefaultAsync(a => a.NomeAbrigo == nomeAbrigo);
 
             if (abrigo == null)
@@ -85,21 +85,19 @@ namespace SolutionApi.Controllers
                 return NotFound(new { message = "Abrigo não encontrado." });
             }
 
-            // Criação da resposta personalizada
             var response = new
             {
                 message = $"Abrigo: {abrigo.NomeAbrigo} carregado com sucesso.",
-                abrigoInfo = new
+                data = new
                 {
-                    nomeAbrigo = abrigo.NomeAbrigo,
-                    bairro = abrigo.Bairro,
-                    tamanho = abrigo.Tamanho.ToString(),
+                    abrigo.NomeAbrigo,
+                    abrigo.Bairro,
+                    abrigo.Tamanho,
                     voluntarios = abrigo.Voluntarios.Select(v => new
                     {
                         v.RG,
                         v.CPF,
-                        v.Funcao,
-                        v.NomeAbrigo
+                        v.Funcao
                     }).ToList()
                 }
             };
@@ -128,7 +126,7 @@ namespace SolutionApi.Controllers
             {
                 NomeAbrigo = abrigoDto.NomeAbrigo,
                 Bairro = abrigoDto.Bairro,
-                Tamanho = abrigoDto.Tamanho
+                Tamanho = abrigoDto.Tamanho,
             };
 
             _context.Abrigos.Add(abrigo);
@@ -136,6 +134,7 @@ namespace SolutionApi.Controllers
 
             return CreatedAtAction(nameof(GetAbrigo), new { nomeAbrigo = abrigo.NomeAbrigo }, new { message = "Abrigo criado com sucesso.", data = abrigo });
         }
+
 
         /// <summary>
         /// Atualiza um abrigo existente.
@@ -145,8 +144,7 @@ namespace SolutionApi.Controllers
         /// <returns>Resultado da atualização</returns>
         [HttpPut("{nomeAbrigo}")]
         [SwaggerOperation(Summary = "Atualiza um abrigo existente.", Description = "Este endpoint atualiza as informações de um abrigo com base no nome.")]
-        [ProducesResponseType(typeof(Abrigo), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces("application/json")]
         public async Task<IActionResult> UpdateAbrigo(string nomeAbrigo, [FromBody] AbrigoDto abrigoDto)

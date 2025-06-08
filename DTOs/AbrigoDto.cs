@@ -14,7 +14,7 @@ namespace SolutionApi.DTOs
         [Required(ErrorMessage = "O nome do abrigo é obrigatório.")]
         [MaxLength(100, ErrorMessage = "O nome do abrigo não pode ter mais de 100 caracteres.")]
         [Display(Name = "Nome do Abrigo", Description = "Nome único do abrigo.")]
-        public required string NomeAbrigo { get; set; }
+        public string NomeAbrigo { get; set; }
 
         /// <summary>
         /// Bairro onde o abrigo está localizado.
@@ -22,7 +22,7 @@ namespace SolutionApi.DTOs
         [Required(ErrorMessage = "O bairro é obrigatório.")]
         [MaxLength(100, ErrorMessage = "O bairro não pode ter mais de 100 caracteres.")]
         [Display(Name = "Bairro", Description = "Bairro onde o abrigo está localizado.")]
-        public required string Bairro { get; set; }
+        public string Bairro { get; set; }
 
         /// <summary>
         /// Tamanho do abrigo (Pequeno, Médio ou Grande).
@@ -35,6 +35,6 @@ namespace SolutionApi.DTOs
         /// <summary>
         /// Lista de voluntarios associados ao abrigo
         /// </summary>
-        public List<VoluntarioDto> Voluntarios { get; internal set; }
+        public List<VoluntarioDto> Voluntarios { get; internal set; } = new List<VoluntarioDto>();
     }
 }

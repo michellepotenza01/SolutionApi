@@ -146,7 +146,8 @@ namespace SolutionApi.Controllers
                 CPF = voluntarioDto.CPF,
                 Funcao = voluntarioDto.Funcao,
                 NomeAbrigo = voluntarioDto.NomeAbrigo,
-                Pessoa = pessoa // Associando a pessoa ao voluntário
+                Pessoa = pessoa
+                
             };
 
             // Adicionando e salvando no banco

@@ -1,13 +1,16 @@
 ﻿# Diretórios do Visual Studio
 .vs/
 .vscode/
+.idea/
 
 # Pastas de build
 bin/
 obj/
+publish/
 
 # Arquivos temporários do sistema
 desktop.ini
+Thumbs.db
 
 # Arquivos do Docker
 .dockerignore
@@ -20,6 +23,18 @@ desktop.ini
 # Arquivos de log
 *.log
 
-# Outros arquivos temporários
+# Arquivos de depuração
+*.pdb
+
+# Arquivos de backup
 *.bak
 *.swp
+
+# Arquivos temporários do NuGet
+.nuget/
+
+# Arquivos de configuração de perfil de usuário
+# (Incluindo os arquivos do ASP.NET)
+appsettings.Development.json
+#appsettings.json
+appsettings.Production.json
