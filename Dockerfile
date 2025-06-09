@@ -1,5 +1,5 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-
+﻿#Dockerfile for .NET 8.0 application	
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /App
 
