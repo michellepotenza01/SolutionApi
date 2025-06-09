@@ -1,4 +1,19 @@
 SolutionApi -
+
+Composição da Equipe:
+•	Nome: Ana Carolina de Castro Gonçalves  -  RM554669
+•	Nome: Luisa Danielle  -  RM555292
+•	Nome: Michelle Marques Potenza  -  RM557702
+2TDSPW
+
+--LINK VIDEOS--
+Vídeo .net: https://youtu.be/p9ul4wBLeEw
+
+Vídeo Cloud: https://youtu.be/9TAHD43vQzY
+
+Video PITCH: https://youtu.be/NdbNXGFoqHc
+
+
 Este repositório contém a implementação de uma API RESTful em .NET 8.0 com foco no gerenciamento de abrigos, voluntários, avisos climáticos e pessoas, com um banco de dados Oracle para persistência de dados. A API foi projetada para ser utilizada em ambientes locais e na nuvem, com um processo de containerização usando Docker.
 
 Estrutura do Projeto
